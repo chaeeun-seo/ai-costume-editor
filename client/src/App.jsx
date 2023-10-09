@@ -5,7 +5,7 @@ import Home from "./pages/Home";
 function App() {
   return (
     <>
-      <main className="head-text">
+      <main>
         <Home />
         <Canvas />
         <Customizer />
