@@ -5,7 +5,7 @@ import Home from "./pages/Home";
 function App() {
   return (
     <>
-      <main className='w-screen h-screen'>
+      <main className="app transition-all ease-in">
         <Home />
         <CanvasModel />
         <Customizer />
