@@ -1,13 +1,13 @@
-import Canvas from "./canvas";
+import CanvasModel from "./canvas";
 import Customizer from "./pages/Customizer";
 import Home from "./pages/Home";
 
 function App() {
   return (
     <>
-      <main>
+      <main className='w-screen h-screen'>
         <Home />
-        <Canvas />
+        <CanvasModel />
         <Customizer />
       </main>
     </>
