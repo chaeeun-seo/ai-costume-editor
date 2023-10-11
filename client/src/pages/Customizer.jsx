@@ -14,6 +14,7 @@ const Customizer = () => {
     const snap = useSnapshot(state);
 
     const [file, setFile] = useState('');
+    const [fileSrc, setFileSrc] = useState("");
 
     const [prompt, setPrompt] = useState('');
     const [generatingImg, setGeneratingImg] = useState(false);
@@ -33,6 +34,8 @@ const Customizer = () => {
                 return <FilePicker 
                     file={file}
                     setFile={setFile}
+                    fileSrc={fileSrc}
+                    setFileSrc={setFileSrc}
                     readFile={readFile}
                 />
             case "aipicker":

@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 
 import CustomButton from './CustomButton';
 
-const FilePicker = ({ file, setFile, readFile }) => {
-  const [imgSrc, setImgSrc] = useState("");
-
+const FilePicker = ({ file, setFile, fileSrc, setFileSrc, readFile }) => {
   return (
     <div className='filepicker-container'>
       <div className='flex-1 flex flex-col gap-2'>
@@ -19,7 +17,7 @@ const FilePicker = ({ file, setFile, readFile }) => {
             reader.readAsDataURL(e.target.files[0])
 
             reader.onloadend = () => {
-              setImgSrc(reader.result);
+              setFileSrc(reader.result);
             }
           }}
           className= "w-full block"
@@ -31,7 +29,7 @@ const FilePicker = ({ file, setFile, readFile }) => {
         <p className='mt-2 text-gray-600 text-xs truncate'>
           {file === '' ? "No file selected" : file.name}
         </p>
-        <img src={imgSrc} alt="" />
+        <img src={fileSrc} alt="" />
       </div>
 
       <div className='mt-4 flex flex-wrap gap-3'>
