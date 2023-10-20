@@ -8,15 +8,19 @@ import { download } from '../assets';
 import { downloadCanvasToImage, reader } from '../config/helpers';
 import { EditorTabs, FilterTabs, DecalTypes } from '../config/constants';
 import { fadeAnimation, slideAnimation } from '../config/motion';
-import { AIPicker, ColorPicker, CustomButton, FilePicker, Tab } from '../components';
+import { AIPicker, DallePicker, ColorPicker, CustomButton, FilePicker, Tab } from '../components';
 
 const Customizer = () => {
+    const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+  
     const snap = useSnapshot(state);
 
     const [file, setFile] = useState('');
     const [fileSrc, setFileSrc] = useState("");
 
-    const [prompt, setPrompt] = useState('');
+    // DALLE
+    const [promptDalle, setPromptDalle] = useState('');
+    const [imgSrc, setImgSrc] = useState("");
     const [generatingImg, setGeneratingImg] = useState(false);
 
     const [activeEditorTab, setActiveEditorTab] = useState("");
@@ -38,23 +42,62 @@ const Customizer = () => {
                     setFileSrc={setFileSrc}
                     readFile={readFile}
                 />
-            case "aipicker":
-                return <AIPicker 
-                    prompt = {prompt}
-                    setPrompt={setPrompt}
+            // case "aipicker":
+            //     return <AIPicker 
+            //         prompt = {prompt}
+            //         setPrompt={setPrompt}
+            //         generatingImg={generatingImg}
+            //         handleSubmit={handleSubmit}
+            //     />
+            case "dallepicker":
+                return <DallePicker 
+                    promptDalle = {promptDalle}
+                    setPromptDalle={setPromptDalle}
                     generatingImg={generatingImg}
-                    handleSubmit={handleSubmit}
+                    handleSubmitDalle={handleSubmitDalle}
+                    imgSrc={imgSrc}
+                    setImgSrc={setImgSrc}
                 />
             default:
                 return null;
         }
     }
 
-    const handleSubmit = async (type) => {
-        if (!prompt) return alert("Please enter a prompt");
+    // dalle 2023
+    const handleSubmitDalle = async (type) => {
+        if (!promptDalle) return alert("Please enter a prompt");
         
         try {
             // call backend to generate an ai image
+
+            // want to generate image
+            setGeneratingImg(true);
+            console.log("[*] handleSubmitDalle before response");
+            const response = await fetch("https://api.openai.com/v1/images/generations", {
+                method: 'POST', 
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${OPENAI_API_KEY}`,
+                    "User-Agent": "Chrome",
+                },
+                body: JSON.stringify({
+                    prompt: promptDalle,
+                    n: 1, 
+                    size: "512x512",
+                }), 
+            });
+            console.log("[*] handleSubmitDalle after response");
+
+            const data = await response.json();
+            console.log(data);
+            console.log("[*] handleSubmitDalle got response");
+
+            setImgSrc(data.data[0].url);
+            // handleDecals(type, `data:image/png;base64,${btoa(data.data[0].url)}`);
+            // console.log(`data:image/png;base64,${btoa(data.data[0].url)}`);
+ 
+            // handleDecals(type, `data:image/png;base64,${data.photo}`)
+            // console.log(`data:image/png;base64,${data.photo}`)
         } catch (error) {
             alert(error)
         } finally {
@@ -66,13 +109,14 @@ const Customizer = () => {
     const readFile = (type) => {
         reader(file)
             .then((result) => {
-                console.log("result : " + result)
+                console.log("readFile result : " + result);
                 handleDecals(type, result);
                 setActiveEditorTab("");
             })
     }
 
     // activeFilterTab이 false이면, handleActiveFilter
+    // type : logo, full
     const handleDecals = (type, result) => {
         const decalType = DecalTypes[type];
 
@@ -109,7 +153,7 @@ const Customizer = () => {
     return (
     <AnimatePresence>
         {!snap.intro && (
-            <>
+            <>                
                 <motion.div key="custom" className='absolute top-0 left-0 z-10' {...slideAnimation('left')}>
                     <div className='flex items-center min-h-screen'>
                         <div className='editortabs-container tabs'>
