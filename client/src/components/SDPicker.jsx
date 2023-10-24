@@ -12,8 +12,7 @@ const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, imgS
         onChange={(e) => setPromptSD(e.target.value)} 
         className="aipicker-textarea"
       />
-      <img src="https://drive.google.com/uc?export=download&id=1KiR2akP9CzX_c4oG5-g5YRkYUrVtPsrc"/>
-      {generatingImgSD ? <p>Loading...</p> :<img src={imgSrcSD}/>}
+      {generatingImgSD ? <p>Loading...</p> : <img src={imgSrcSD}/>}
       <div className='flex flex-wrap gap-3'>
         {generatingImgSD ? (
           <CustomButton 
