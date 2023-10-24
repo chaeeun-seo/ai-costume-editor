@@ -12,6 +12,7 @@ import { AIPicker, DallePicker, SDPicker, ColorPicker, CustomButton, FilePicker,
 
 const Customizer = () => {
     const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+    const STABILITY_API_KEY = import.meta.env.VITE_STABILITY_API_KEY;
   
     const snap = useSnapshot(state);
 
@@ -103,11 +104,16 @@ const Customizer = () => {
             console.log("[*] handleSubmitDalle after response");
 
             const data = await response.json();
+            console.log("data = response.json() : ");
             console.log(data);
             console.log("[*] handleSubmitDalle got response");
-
+            console.log("[*] data.data[0].url : ");
+            console.log(data.data[0].url);
             setImgSrc(data.data[0].url);
-            // handleDecals(type, `data:image/png;base64,${btoa(data.data[0].url)}`);
+            console.log("[*] setImgSrc success");
+            console.log("[*] start handleDecals");
+            handleDecals(type, data.data[0].url);
+            console.log("[*] finish handleDecals");
             // console.log(`data:image/png;base64,${btoa(data.data[0].url)}`);
  
             // handleDecals(type, `data:image/png;base64,${data.photo}`)
@@ -120,7 +126,7 @@ const Customizer = () => {
         }
     }
 
-    // dalle 2023
+    // Diffusers
     const handleSubmitSD = async (type) => {
         if (!promptSD) return alert("Please enter a prompt");
         
@@ -130,45 +136,95 @@ const Customizer = () => {
             // want to generate image
             setGeneratingImgSD(true);
             console.log("[*] handleSubmitSD before response");
-            const response = await fetch("https://2c8b-35-194-72-211.ngrok.io/", {
+            const response = await fetch(`https://31d1-34-16-170-74.ngrok.io/?prompt=${promptSD}`, {
                 method: 'GET', 
                 headers: {
                     "Content-Type": "application/json",
-                    // Authorization: `Bearer ${OPENAI_API_KEY}`,
-                    "User-Agent": "Chrome",
                 },
-                // body: JSON.stringify({
-                //     prompt: "HELLO",
-                //     n: 1, 
-                //     size: "512x512",
-                // }), 
             });
             console.log("[*] handleSubmitSD after response");
-            console.log("[*] response : " + response);
+            console.log("[*] response : ");
             console.log(response);
-            // console.log(response.url);
-            // setImgSrcSD(response.url);
             
             const data = await response.json();
             console.log(data);
-            console.log(data["url"]);
-            setImgSrcSD(data["url"]);
+            console.log(data["img"]);
+            console.log(`data:image/png;base64,${data.img}`);
+            setImgSrcSD(`data:image/png;base64,${data.img}`);
             console.log("[*] handleSubmitSD got response");
-
-            // setImgSrc(data.data[0].url);
-
-            // handleDecals(type, `data:image/png;base64,${btoa(data.data[0].url)}`);
-            // console.log(`data:image/png;base64,${btoa(data.data[0].url)}`);
-    
-            // handleDecals(type, `data:image/png;base64,${data.photo}`)
-            // console.log(`data:image/png;base64,${data.photo}`)
+            handleDecals(type, `data:image/png;base64,${data.img}`)
         } catch (error) {
             alert(error)
         } finally {
-            setGeneratingImg(false);
-            setActiveEditorTab("");
+            setGeneratingImgSD(false);
+            // setActiveEditorTab("");
         }
     }
+
+    // Stability AI
+    // const handleSubmitSD = async (type) => {
+    //     if (!promptSD) return alert("Please enter a prompt");
+        
+    //     try {
+    //         // call backend to generate an ai image
+
+    //         // want to generate image
+    //         setGeneratingImgSD(true);
+    //         console.log("[*] handleSubmitSD before response");
+    //         const response = await fetch("https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image", {
+    //             method: 'POST', 
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //                 Authorization: `Bearer ${STABILITY_API_KEY}`,
+    //             },
+    //             body: JSON.stringify({
+    //                 steps: 40,
+    //                 width: 1024,
+    //                 height: 1024,
+    //                 seed: 0,
+    //                 cfg_scale: 5,
+    //                 samples: 1,
+    //                 text_prompts: [
+    //                   {
+    //                     "text": "A painting of a cat",
+    //                     "weight": 1
+    //                   },
+    //                   {
+    //                     "text": "blurry, bad",
+    //                     "weight": -1
+    //                   }
+    //                 ],
+    //             }), 
+    //         });
+    //         console.log("[*] handleSubmitSD after response");
+    //         console.log("[*] response : " + response);
+    //         console.log(response);
+            
+    //         const data = await response.json();
+    //         console.log(data);
+    //         data.artifacts.forEach((image, index) => {
+    //             fs.writeFileSync(
+    //               `./out/txt2img_${image.seed}.png`,
+    //               Buffer.from(image.base64, 'base64')
+    //             )
+    //         });
+    //         setImgSrcSD(data["url"]);
+    //         console.log("[*] handleSubmitSD got response");
+
+    //         // setImgSrc(data.data[0].url);
+
+    //         // handleDecals(type, `data:image/png;base64,${btoa(data.data[0].url)}`);
+    //         // console.log(`data:image/png;base64,${btoa(data.data[0].url)}`);
+    
+    //         // handleDecals(type, `data:image/png;base64,${data.photo}`)
+    //         // console.log(`data:image/png;base64,${data.photo}`)
+    //     } catch (error) {
+    //         alert(error)
+    //     } finally {
+    //         setGeneratingImg(false);
+    //         setActiveEditorTab("");
+    //     }
+    // }
 
     const readFile = (type) => {
         reader(file)
