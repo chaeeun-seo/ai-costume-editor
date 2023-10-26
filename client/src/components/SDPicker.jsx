@@ -2,7 +2,7 @@ import { React, useState } from 'react';
 
 import CustomButton from './CustomButton';
 
-const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, imgSrcSD, setImgSrcSD }) => {
+const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, handleDecals, imgSrcSD, setImgSrcSD }) => {
   const imageContainer = imgSrcSD.map((img, index) => {
     return <img className='min-w-[90px]' key={index} src={img}/>
   })
@@ -22,6 +22,12 @@ const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, imgS
       />
       {/* {generatingImgSD ? <p>Loading...</p> : <img src={imgSrcSD}/>} */}
       {generatingImgSD ? <p>Loading...</p> : imageBox}
+      <CustomButton 
+        type="filled"
+        title="Generate"
+        handleClick={() => handleSubmitSD()}
+        customStyles="text-xs"
+      />
       <div className='flex flex-wrap gap-3'>
         {generatingImgSD ? (
           <CustomButton 
@@ -38,7 +44,7 @@ const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, imgS
               customStyles="text-xs"
             />
             <CustomButton 
-              type="filled"
+              type="outline"
               title="AI Full"
               handleClick={() => handleSubmitSD('full')}
               customStyles="text-xs"
