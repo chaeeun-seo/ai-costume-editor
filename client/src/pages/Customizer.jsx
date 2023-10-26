@@ -26,7 +26,7 @@ const Customizer = () => {
 
     // Stable Diffusion
     const [promptSD, setPromptSD] = useState('');
-    const [imgSrcSD, setImgSrcSD] = useState("");
+    const [imgSrcSD, setImgSrcSD] = useState([]);
     const [generatingImgSD, setGeneratingImgSD] = useState(false);
 
     const [activeEditorTab, setActiveEditorTab] = useState("");
@@ -136,7 +136,8 @@ const Customizer = () => {
             // want to generate image
             setGeneratingImgSD(true);
             console.log("[*] handleSubmitSD before response");
-            const response = await fetch(`https://31d1-34-16-170-74.ngrok.io/?prompt=${promptSD}`, {
+            const url = "https://9dc5-34-142-143-170.ngrok.io";
+            const response = await fetch(`${url}/?prompt=${promptSD}`, {
                 method: 'GET', 
                 headers: {
                     "Content-Type": "application/json",
@@ -147,12 +148,13 @@ const Customizer = () => {
             console.log(response);
             
             const data = await response.json();
-            console.log(data);
-            console.log(data["img"]);
-            console.log(`data:image/png;base64,${data.img}`);
-            setImgSrcSD(`data:image/png;base64,${data.img}`);
+            const imageList = data["img"].map((img) => {
+                return `data:image/png;base64,${img}`;
+            });
+            setImgSrcSD(imageList);
+            // setImgSrcSD(`data:image/png;base64,${data.img}`);
             console.log("[*] handleSubmitSD got response");
-            handleDecals(type, `data:image/png;base64,${data.img}`)
+            // handleDecals(type, `data:image/png;base64,${data.img}`)
         } catch (error) {
             alert(error)
         } finally {
@@ -229,7 +231,8 @@ const Customizer = () => {
     const readFile = (type) => {
         reader(file)
             .then((result) => {
-                console.log("readFile result : " + result);
+                // console.log("readFile result : " + result);
+                console.log("[*] readFile start")
                 handleDecals(type, result);
                 setActiveEditorTab("");
             })
@@ -238,6 +241,7 @@ const Customizer = () => {
     // activeFilterTab이 false이면, handleActiveFilter
     // type : logo, full
     const handleDecals = (type, result) => {
+        console.log("[*] handleDecals start")
         const decalType = DecalTypes[type];
 
         state[decalType.stateProperty] = result; // logoDecal or fullDecal = GenAI image
@@ -245,6 +249,7 @@ const Customizer = () => {
         if(!activeFilterTab[decalType.filterTab]) {
             handleActiveFilterTab(decalType.filterTab)
         }
+        console.log("[*] handleDecals end")
     }
 
     const handleActiveFilterTab = (tabName) => {
