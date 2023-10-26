@@ -70,6 +70,7 @@ const Customizer = () => {
                     setPromptSD={setPromptSD}
                     generatingImgSD={generatingImgSD}
                     handleSubmitSD={handleSubmitSD}
+                    handleDecals={handleDecals}
                     imgSrcSD={imgSrcSD}
                     setImgSrcSD={setImgSrcSD}
                 />
@@ -126,8 +127,8 @@ const Customizer = () => {
         }
     }
 
-    // Diffusers
-    const handleSubmitSD = async (type) => {
+    // Diffusers : get generated images list
+    const handleSubmitSD = async () => {
         if (!promptSD) return alert("Please enter a prompt");
         
         try {
@@ -136,7 +137,7 @@ const Customizer = () => {
             // want to generate image
             setGeneratingImgSD(true);
             console.log("[*] handleSubmitSD before response");
-            const url = "https://9dc5-34-142-143-170.ngrok.io";
+            const url = "https://881a-35-185-229-163.ngrok.io";
             const response = await fetch(`${url}/?prompt=${promptSD}`, {
                 method: 'GET', 
                 headers: {
