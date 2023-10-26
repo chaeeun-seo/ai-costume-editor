@@ -3,8 +3,16 @@ import { React, useState } from 'react';
 import CustomButton from './CustomButton';
 
 const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, imgSrcSD, setImgSrcSD }) => {
+  const imageContainer = imgSrcSD.map((img, index) => {
+    return <img className='min-w-[90px]' key={index} src={img}/>
+  })
+  const imageBox = 
+    <div className='w-full grid grid-cols-2 gap-2'>
+      {imageContainer}
+    </div>
+
   return (
-    <div className='aipicker-container'>
+    <div className={`aipicker-container ${imgSrcSD.length > 0 ? "w-[300px]" : "w-[195px]"}`}>
       <textarea 
         placeholder="Ask Stable Diffusion..." 
         rows={5} 
@@ -12,7 +20,8 @@ const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, imgS
         onChange={(e) => setPromptSD(e.target.value)} 
         className="aipicker-textarea"
       />
-      {generatingImgSD ? <p>Loading...</p> : <img src={imgSrcSD}/>}
+      {/* {generatingImgSD ? <p>Loading...</p> : <img src={imgSrcSD}/>} */}
+      {generatingImgSD ? <p>Loading...</p> : imageBox}
       <div className='flex flex-wrap gap-3'>
         {generatingImgSD ? (
           <CustomButton 
