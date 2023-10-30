@@ -1,15 +1,34 @@
 import { React, useState } from 'react';
+import { useSnapshot } from 'valtio';
 
 import CustomButton from './CustomButton';
+import state from '../store';
 
-const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, handleDecals, imgSrcSD, setImgSrcSD }) => {
+const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, handleDecals, imgSrcSD, setImgSrcSD, selectedImg, setSelectedImg }) => {
+  const snap = useSnapshot(state);
   const imageContainer = imgSrcSD.map((img, index) => {
-    return <img className='min-w-[90px]' key={index} src={img}/>
+    return (
+      <label key={index} className='cursor-pointer'>
+        <input 
+          type="radio" 
+          name="selectedImage" 
+          value={img} 
+          checked={selectedImg === img} 
+          onChange={() => setSelectedImg(img)} 
+          className="hidden"
+        />
+        <img 
+          src={img}
+          onClick={() => setSelectedImg(img)}
+          className={`min-w-[90px] ${selectedImg === img ? `border-8 border-[${snap.color}]` : ""}`} 
+        />
+      </label>
+    )
   })
   const imageBox = 
-    <div className='w-full grid grid-cols-2 gap-2'>
+    <form className='w-full grid grid-cols-2 gap-2'>
       {imageContainer}
-    </div>
+    </form>
 
   return (
     <div className={`aipicker-container ${imgSrcSD.length > 0 ? "w-[300px]" : "w-[195px]"}`}>
@@ -40,13 +59,13 @@ const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, hand
             <CustomButton 
               type="outline"
               title="AI Logo"
-              handleClick={() => handleSubmitSD('logo')}
+              handleClick={() => handleDecals('logo', selectedImg)}
               customStyles="text-xs"
             />
             <CustomButton 
               type="outline"
               title="AI Full"
-              handleClick={() => handleSubmitSD('full')}
+              handleClick={() => handleDecals('full', selectedImg)}
               customStyles="text-xs"
             />
           </>
