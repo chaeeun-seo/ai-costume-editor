@@ -24,9 +24,10 @@ const Customizer = () => {
     const [imgSrc, setImgSrc] = useState("");
     const [generatingImg, setGeneratingImg] = useState(false);
 
-    // Stable Diffusion
+    // Stable Diffusion : Diffusers
     const [promptSD, setPromptSD] = useState('');
     const [imgSrcSD, setImgSrcSD] = useState([]);
+    const [selectedImg, setSelectedImg] = useState("");
     const [generatingImgSD, setGeneratingImgSD] = useState(false);
 
     const [activeEditorTab, setActiveEditorTab] = useState("");
@@ -73,6 +74,8 @@ const Customizer = () => {
                     handleDecals={handleDecals}
                     imgSrcSD={imgSrcSD}
                     setImgSrcSD={setImgSrcSD}
+                    selectedImg={selectedImg} 
+                    setSelectedImg={setSelectedImg}
                 />
             default:
                 return null;
@@ -137,7 +140,7 @@ const Customizer = () => {
             // want to generate image
             setGeneratingImgSD(true);
             console.log("[*] handleSubmitSD before response");
-            const url = "https://881a-35-185-229-163.ngrok.io";
+            const url = "https://d933-35-229-138-163.ngrok.io";
             const response = await fetch(`${url}/?prompt=${promptSD}`, {
                 method: 'GET', 
                 headers: {
