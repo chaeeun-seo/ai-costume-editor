@@ -44,7 +44,7 @@ html {
 }
 
 .aipicker-container {
-  @apply absolute left-full ml-3 glassmorphism p-3 min-w-[195px] min-h-[220px] rounded-md flex flex-col gap-4;
+  @apply absolute left-full ml-3 glassmorphism p-3 min-w-[195px] min-h-[220px] rounded-md flex flex-col gap-3;
 }
 
 .aipicker-textarea {
