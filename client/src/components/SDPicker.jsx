@@ -4,7 +4,7 @@ import { useSnapshot } from 'valtio';
 import CustomButton from './CustomButton';
 import state from '../store';
 
-const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, handleDecals, imgSrcSD, setImgSrcSD, selectedImg, setSelectedImg }) => {
+const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, handleDecals, imgSrcSD, setImgSrcSD, selectedImgSD, setSelectedImgSD }) => {
   const snap = useSnapshot(state);
   const imageContainer = imgSrcSD.map((img, index) => {
     return (
@@ -13,14 +13,14 @@ const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, hand
           type="radio" 
           name="selectedImage" 
           value={img} 
-          checked={selectedImg === img} 
-          onChange={() => setSelectedImg(img)} 
+          checked={selectedImgSD === img} 
+          onChange={() => setSelectedImgSD(img)} 
           className="hidden"
         />
         <img 
           src={img}
-          onClick={() => setSelectedImg(img)}
-          className={`min-w-[90px] ${selectedImg === img ? `border-8 border-[${snap.color}]` : ""}`} 
+          onClick={() => setSelectedImgSD(img)}
+          className={`min-w-[90px] ${selectedImgSD === img ? `border-8 border-[${snap.color}]` : ""}`} 
         />
       </label>
     )
@@ -59,13 +59,13 @@ const SDPicker = ({ promptSD, setPromptSD, generatingImgSD, handleSubmitSD, hand
             <CustomButton 
               type="outline"
               title="AI Logo"
-              handleClick={() => handleDecals('logo', selectedImg)}
+              handleClick={() => handleDecals('logo', selectedImgSD)}
               customStyles="text-xs"
             />
             <CustomButton 
               type="outline"
               title="AI Full"
-              handleClick={() => handleDecals('full', selectedImg)}
+              handleClick={() => handleDecals('full', selectedImgSD)}
               customStyles="text-xs"
             />
           </>
