@@ -8,7 +8,7 @@ import { download } from '../assets';
 import { downloadCanvasToImage, reader } from '../config/helpers';
 import { EditorTabs, FilterTabs, DecalTypes } from '../config/constants';
 import { fadeAnimation, slideAnimation } from '../config/motion';
-import { AIPicker, DallePicker, SDPicker, ColorPicker, CustomButton, FilePicker, Tab } from '../components';
+import { AIPicker, DallePicker, SDPicker, SAPicker, ColorPicker, CustomButton, FilePicker, Tab } from '../components';
 
 const Customizer = () => {
     const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
@@ -27,8 +27,14 @@ const Customizer = () => {
     // Stable Diffusion : Diffusers
     const [promptSD, setPromptSD] = useState('');
     const [imgSrcSD, setImgSrcSD] = useState([]);
-    const [selectedImg, setSelectedImg] = useState("");
+    const [selectedImgSD, setSelectedImgSD] = useState("");
     const [generatingImgSD, setGeneratingImgSD] = useState(false);
+
+    // Stable Diffusion : Stability AI
+    const [promptSA, setPromptSA] = useState('');
+    const [imgSrcSA, setImgSrcSA] = useState([]);
+    const [selectedImgSA, setSelectedImgSA] = useState("");
+    const [generatingImgSA, setGeneratingImgSA] = useState(false);
 
     const [activeEditorTab, setActiveEditorTab] = useState("");
     const [activeFilterTab, setActiveFilterTab] = useState({
@@ -74,8 +80,20 @@ const Customizer = () => {
                     handleDecals={handleDecals}
                     imgSrcSD={imgSrcSD}
                     setImgSrcSD={setImgSrcSD}
-                    selectedImg={selectedImg} 
-                    setSelectedImg={setSelectedImg}
+                    selectedImgSD={selectedImgSD} 
+                    setSelectedImgSD={setSelectedImgSD}
+                />
+            case "sapicker":
+                return <SAPicker 
+                    promptSA = {promptSA}
+                    setPromptSA={setPromptSA}
+                    generatingImgSA={generatingImgSA}
+                    handleSubmitSA={handleSubmitSA}
+                    handleDecals={handleDecals}
+                    imgSrcSA={imgSrcSA}
+                    setImgSrcSA={setImgSrcSA}
+                    selectedImgSA={selectedImgSA} 
+                    setSelectedImgSA={setSelectedImgSA}
                 />
             default:
                 return null;
@@ -87,9 +105,6 @@ const Customizer = () => {
         if (!promptDalle) return alert("Please enter a prompt");
         
         try {
-            // call backend to generate an ai image
-
-            // want to generate image
             setGeneratingImg(true);
             console.log("[*] handleSubmitDalle before response");
             const response = await fetch("https://api.openai.com/v1/images/generations", {
@@ -135,9 +150,6 @@ const Customizer = () => {
         if (!promptSD) return alert("Please enter a prompt");
         
         try {
-            // call backend to generate an ai image
-
-            // want to generate image
             setGeneratingImgSD(true);
             console.log("[*] handleSubmitSD before response");
             const url = "https://d933-35-229-138-163.ngrok.io";
@@ -168,69 +180,60 @@ const Customizer = () => {
     }
 
     // Stability AI
-    // const handleSubmitSD = async (type) => {
-    //     if (!promptSD) return alert("Please enter a prompt");
+    const handleSubmitSA = async (type) => {
+        if (!promptSA) return alert("Please enter a prompt");
         
-    //     try {
-    //         // call backend to generate an ai image
-
-    //         // want to generate image
-    //         setGeneratingImgSD(true);
-    //         console.log("[*] handleSubmitSD before response");
-    //         const response = await fetch("https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image", {
-    //             method: 'POST', 
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //                 Authorization: `Bearer ${STABILITY_API_KEY}`,
-    //             },
-    //             body: JSON.stringify({
-    //                 steps: 40,
-    //                 width: 1024,
-    //                 height: 1024,
-    //                 seed: 0,
-    //                 cfg_scale: 5,
-    //                 samples: 1,
-    //                 text_prompts: [
-    //                   {
-    //                     "text": "A painting of a cat",
-    //                     "weight": 1
-    //                   },
-    //                   {
-    //                     "text": "blurry, bad",
-    //                     "weight": -1
-    //                   }
-    //                 ],
-    //             }), 
-    //         });
-    //         console.log("[*] handleSubmitSD after response");
-    //         console.log("[*] response : " + response);
-    //         console.log(response);
+        try {
+            setGeneratingImgSA(true);
+            console.log("[*] handleSubmitSA before response");
+            const response = await fetch("https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image", {
+                method: 'POST', 
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${STABILITY_API_KEY}`,
+                },
+                body: JSON.stringify({
+                    steps: 40,
+                    width: 1024,
+                    height: 1024,
+                    seed: 0,
+                    cfg_scale: 5,
+                    samples: 6,
+                    text_prompts: [
+                      {
+                        "text": promptSA,
+                        "weight": 1
+                      },
+                    //   {
+                    //     "text": "blurry, bad",
+                    //     "weight": -1
+                    //   }
+                    ],
+                }), 
+            });
+            console.log("[*] handleSubmitSA after response");
+            console.log("[*] response : " + response);
+            console.log(response);
             
-    //         const data = await response.json();
-    //         console.log(data);
-    //         data.artifacts.forEach((image, index) => {
-    //             fs.writeFileSync(
-    //               `./out/txt2img_${image.seed}.png`,
-    //               Buffer.from(image.base64, 'base64')
-    //             )
-    //         });
-    //         setImgSrcSD(data["url"]);
-    //         console.log("[*] handleSubmitSD got response");
-
-    //         // setImgSrc(data.data[0].url);
-
-    //         // handleDecals(type, `data:image/png;base64,${btoa(data.data[0].url)}`);
-    //         // console.log(`data:image/png;base64,${btoa(data.data[0].url)}`);
-    
-    //         // handleDecals(type, `data:image/png;base64,${data.photo}`)
-    //         // console.log(`data:image/png;base64,${data.photo}`)
-    //     } catch (error) {
-    //         alert(error)
-    //     } finally {
-    //         setGeneratingImg(false);
-    //         setActiveEditorTab("");
-    //     }
-    // }
+            const data = await response.json();
+            console.log(data);
+            console.log("data.artifacts : ");
+            console.log(data.artifacts);
+            console.log("data.artifacts[0][base64] : ");
+            console.log(data.artifacts[0]["base64"]);
+            const imageList = data.artifacts.map((img) => {
+                return `data:image/png;base64,${img.base64}`;
+            });
+            console.log("imageList : ")
+            console.log(imageList);
+            setImgSrcSA(imageList);
+            console.log("[*] handleSubmitSD got response");
+        } catch (error) {
+            alert(error)
+        } finally {
+            setGeneratingImgSA(false);
+        }
+    }
 
     const readFile = (type) => {
         reader(file)
