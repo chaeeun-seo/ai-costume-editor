@@ -33,7 +33,7 @@ const SAPicker = ({ promptSA, setPromptSA, generatingImgSA, handleSubmitSA, hand
   return (
     <div className={`aipicker-container ${imgSrcSA.length > 0 ? "w-[300px]" : "w-[195px]"}`}>
       <textarea 
-        placeholder="Ask Stable Diffusion..." 
+        placeholder="Ask Stability AI..."
         rows={5} 
         value={promptSA} 
         onChange={(e) => setPromptSA(e.target.value)} 
@@ -50,7 +50,7 @@ const SAPicker = ({ promptSA, setPromptSA, generatingImgSA, handleSubmitSA, hand
         {generatingImgSA ? (
           <CustomButton 
             type="outline"
-            title="Asking Stable Diffusion..."
+            title="Asking Stability AI..."
             customStyles="text-xs"
           />
         ) : (
