@@ -13,6 +13,7 @@ import { AIPicker, DallePicker, SDPicker, SAPicker, NovitaPicker, ColorPicker, C
 const Customizer = () => {
     const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
     const STABILITY_API_KEY = import.meta.env.VITE_STABILITY_API_KEY;
+    const NOVITA_API_KEY = import.meta.env.VITE_NOVITA_API_KEY;
   
     const snap = useSnapshot(state);
 
@@ -204,11 +205,11 @@ const Customizer = () => {
         try {
             setGeneratingImgSA(true);
             console.log("[*] handleSubmitSA before response");
-            const response = await fetch(`https://api.novita.ai/v2/model/civitai_version_id/${civitai_version_id}`, {
-                method: 'GET', 
+            const response = await fetch("https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image", {
+                method: 'POST', 
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${NOVITA_API_KEY}`,
+                    Authorization: `Bearer ${STABILITY_API_KEY}`,
                 },
                 body: JSON.stringify({
                     steps: 40,
@@ -257,51 +258,176 @@ const Customizer = () => {
         }
     }
 
-    // Novita AI
-    const handleSubmitNovita = async (type) => {
+        // Novita AI
+        const handleSubmitNovita = async (type) => {
+            if (!promptNovita) return alert("Please enter a prompt");
+            
+            try {
+                setGeneratingImgNovita(true);
+                console.log("[*] handleSubmitNovita before response");
+                const response = await fetch("https://api.novita.ai/v2/txt2img", {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${NOVITA_API_KEY}`,
+                    },
+                    body: JSON.stringify({
+                        "prompt": "(masterpiece, best quality:1.2), illustration, absurdres, highres, extremely detailed, 1 petite girl, white short hair, rabbit ears, red eyes, eye highlights, dress, short puffy sleeves, frills, outdoors, flower, fluttering petals, upper body, (moon:1.2), night, depth of field, (:d:0.8), chromatic aberration abuse,pastel color, Depth of field,garden of the sun,shiny,Purple tint,(Purple fog:1.3)",
+                        "negative_prompt": "NG_DeepNegative_V1_75T, EasyNegative, extra fingers, fewer fingers, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, (worst quality, low quality:1.4), Negative2, (low quality, worst quality:1.4), (bad anatomy), (inaccurate limb:1.2), bad composition, inaccurate eyes, extra digit,fewer digits, (extra arms:1.2), (bad-artist:0.6), bad-image-v2-39000, <lora:3DMM_V11_67066:1>",
+                        "sampler_name": "Euler a",
+                        "batch_size": 1,
+                        "n_iter": 1,
+                        "steps": 20,
+                        "cfg_scale": 7,
+                        "seed": 3223553976,
+                        "height": 512,
+                        "width": 512,
+                        "model_name": "AnythingV5_v5PrtRE.safetensors",
+                        "restore_faces": false,
+                        "restore_faces_model": "CodeFormer",
+                        "sd_vae": "",
+                        "clip_skip": null,
+                        "enable_hr": false,
+                        "hr_upscaler": "Latent",
+                        "hr_scale": null,
+                        "hr_resize_x": null,
+                        "hr_resize_y": null,
+                        "img_expire_ttl": null,
+                        "sd_refiner": [
+                          {
+                            "checkpoint": "sd_xl_refiner_1.0.safetensors",
+                            "switch_at": null
+                          }
+                        ],
+                        "controlnet_units": [
+                          {
+                            "model": "",
+                            "weight": "",
+                            "input_image": "",
+                            "module": "none",
+                            "control_mode": 0,
+                            "mask": "",
+                            "resize_mode": 1,
+                            "lowvram": false,
+                            "processor_res": null,
+                            "threshold_a": null,
+                            "threshold_b": null,
+                            "guidance_start": null,
+                            "guidance_end": null,
+                            "pixel_perfect": false
+                          }
+                        ]
+                      }), 
+                });
+                console.log("[*] handleSubmitNovita after response");
+                console.log("[*] response : " + response);
+                console.log(response);
+    
+                const data = await response.json();
+                console.log(data);
+                console.log(data.data.task_id);
+                
+                console.log(data.artifacts[0]["base64"]);
+                const imageList = data.artifacts.map((img) => {
+                    return `data:image/png;base64,${img.base64}`;
+                });
+                console.log("imageList : ")
+                console.log(imageList);
+                setImgSrcSA(imageList);
+                console.log("[*] handleSubmitNovita got response");
+            } catch (error) {
+                alert(error)
+            } finally {
+                setGeneratingImgSA(false);
+            }
+        }
+
+    // Novita AI for Civitai models
+    const handleSubmitNovitaCivitai = async (type) => {
         if (!promptNovita) return alert("Please enter a prompt");
         
         try {
             setGeneratingImgNovita(true);
-            console.log("[*] handleSubmitNovita before response");
-            const response = await fetch("", {
-                method: 'POST', 
+            console.log("[*] handleSubmitNovitaCivitai before response");
+            // const civitai_version_id = 64094;
+            const response_check = await fetch(`https://api.novita.ai/v2/model/civitai_version_id/${civitai_version_id}`, {
+                method: 'GET', 
                 headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${STABILITY_API_KEY}`,
+                    Authorization: `Bearer ${NOVITA_API_KEY}`,
                 },
-                body: JSON.stringify({
-                    steps: 40,
-                    width: 1024,
-                    height: 1024,
-                    seed: 0,
-                    cfg_scale: 5,
-                    samples: 6,
-                    text_prompts: [
-                      {
-                        "text": promptNovita,
-                        "weight": 1
-                      },
-                    ],
-                }), 
             });
-            console.log("[*] handleSubmitNovita after response");
-            console.log("[*] response : " + response);
-            console.log(response);
-            
-            const data = await response.json();
-            console.log(data);
-            console.log("data.artifacts : ");
-            console.log(data.artifacts);
-            console.log("data.artifacts[0][base64] : ");
-            console.log(data.artifacts[0]["base64"]);
-            const imageList = data.artifacts.map((img) => {
-                return `data:image/png;base64,${img.base64}`;
-            });
-            console.log("imageList : ")
-            console.log(imageList);
-            setImgSrcNovita(imageList);
-            console.log("[*] handleSubmitNovita got response");
+            console.log("[*] handleSubmitNovitaCivitai after response");
+            console.log("[*] response_check : ");
+            console.log(response_check);
+            const data_check = await response_check.json();
+            console.log(data_check);
+            console.log(data_check.data.model.enable);
+
+            if (data_check.data.model.enable == 1) {
+                const response = await fetch(`https://api.novita.ai/v2/model/civitai_version_id/${civitai_version_id}/v2/txt2img`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${NOVITA_API_KEY}`,
+                    },
+                    body: JSON.stringify({
+                        "prompt": "(masterpiece, best quality:1.2), illustration, absurdres, highres, extremely detailed, 1 petite girl, white short hair, rabbit ears, red eyes, eye highlights, dress, short puffy sleeves, frills, outdoors, flower, fluttering petals, upper body, (moon:1.2), night, depth of field, (:d:0.8), chromatic aberration abuse,pastel color, Depth of field,garden of the sun,shiny,Purple tint,(Purple fog:1.3)",
+                        // "negative_prompt": "NG_DeepNegative_V1_75T, EasyNegative, extra fingers, fewer fingers, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, (worst quality, low quality:1.4), Negative2, (low quality, worst quality:1.4), (bad anatomy), (inaccurate limb:1.2), bad composition, inaccurate eyes, extra digit,fewer digits, (extra arms:1.2), (bad-artist:0.6), bad-image-v2-39000, <lora:3DMM_V11_67066:1>",
+                        "sampler_name": "Euler a",
+                        "batch_size": 5,
+                        "n_iter": 1,
+                        "steps": 20,
+                        "cfg_scale": 7,
+                        // "seed": 3223553976,
+                        "height": 512,
+                        "width": 512,
+                        "model_name": "AnythingV5_v5PrtRE.safetensors",
+                        "restore_faces": false,
+                        "restore_faces_model": "CodeFormer",
+                        "sd_vae": "",
+                        "clip_skip": null,
+                        "enable_hr": false,
+                        "hr_upscaler": "Latent",
+                        "hr_scale": null,
+                        "hr_resize_x": null,
+                        "hr_resize_y": null,
+                        "img_expire_ttl": null,
+                        "sd_refiner": [
+                          {
+                            "checkpoint": "sd_xl_refiner_1.0.safetensors",
+                            "switch_at": null
+                          }
+                        ],
+                        "controlnet_units": [
+                          {
+                            "model": "",
+                            "weight": "",
+                            "input_image": "",
+                            "module": "none",
+                            "control_mode": 0,
+                            "mask": "",
+                            "resize_mode": 1,
+                            "lowvram": false,
+                            "processor_res": null,
+                            "threshold_a": null,
+                            "threshold_b": null,
+                            "guidance_start": null,
+                            "guidance_end": null,
+                            "pixel_perfect": false
+                          }
+                        ]
+                    })
+                });
+            }
+            // console.log("data.artifacts : ");
+            // console.log(data.artifacts);
+            // console.log("data.artifacts[0][base64] : ");
+            // console.log(data.artifacts[0]["base64"]);
+            // const imageList = data.artifacts.map((img) => {
+            //     return `data:image/png;base64,${img.base64}`;
+            // });
+            // console.log("imageList : ")
+            // console.log(imageList);
+            // setImgSrcNovita(imageList);
+            console.log("[*] handleSubmitNovitaCivitai got response");
         } catch (error) {
             alert(error)
         } finally {
