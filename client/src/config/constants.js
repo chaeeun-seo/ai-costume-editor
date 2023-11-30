@@ -1,4 +1,4 @@
-import { swatch, fileIcon, ai, openai, logoShirt, stylishShirt, stableDiffusion, stabilityAI, novita } from "../assets";
+import { swatch, fileIcon, ai, openai, logoShirt, stylishShirt, stableDiffusion, stabilityAI, novita, sda } from "../assets";
 
 export const EditorTabs = [
   {
@@ -28,6 +28,10 @@ export const EditorTabs = [
   {
     name: "novitapicker",
     icon: novita,
+  },
+  {
+    name: "sdapicker",
+    icon: sda,
   },
 ];
 
