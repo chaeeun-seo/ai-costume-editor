@@ -8,13 +8,14 @@ import { download } from '../assets';
 import { downloadCanvasToImage, reader } from '../config/helpers';
 import { EditorTabs, FilterTabs, DecalTypes } from '../config/constants';
 import { fadeAnimation, slideAnimation } from '../config/motion';
-import { AIPicker, DallePicker, SDPicker, SAPicker, NovitaPicker, ColorPicker, CustomButton, FilePicker, Tab } from '../components';
+import { AIPicker, DallePicker, SDPicker, SAPicker, NovitaPicker, SDAPicker, ColorPicker, CustomButton, FilePicker, Tab } from '../components';
 
 const Customizer = () => {
     const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
     const STABILITY_API_KEY = import.meta.env.VITE_STABILITY_API_KEY;
     const NOVITA_API_KEY = import.meta.env.VITE_NOVITA_API_KEY;
-  
+    const SDA_API_KEY = import.meta.env.VITE_SDA_API_KEY;
+
     const snap = useSnapshot(state);
 
     const [file, setFile] = useState('');
@@ -42,6 +43,12 @@ const Customizer = () => {
     const [imgSrcNovita, setImgSrcNovita] = useState([]);
     const [selectedImgNovita, setSelectedImgNovita] = useState("");
     const [generatingImgNovita, setGeneratingImgNovita] = useState(false);
+
+    // Stable Diffusion : Stable Diffusion API
+    const [promptSDA, setPromptSDA] = useState('');
+    const [imgSrcSDA, setImgSrcSDA] = useState([]);
+    const [selectedImgSDA, setSelectedImgSDA] = useState("");
+    const [generatingImgSDA, setGeneratingImgSDA] = useState(false);
 
     const [activeEditorTab, setActiveEditorTab] = useState("");
     const [activeFilterTab, setActiveFilterTab] = useState({
@@ -113,6 +120,18 @@ const Customizer = () => {
                     setImgSrcNovita={setImgSrcNovita}
                     selectedImgNovita={selectedImgNovita} 
                     setSelectedImgNovita={setSelectedImgNovita}
+                />
+            case "sdapicker":
+                return <SDAPicker 
+                    promptSDA = {promptSDA}
+                    setPromptSDA={setPromptSDA}
+                    generatingImgSDA={generatingImgSDA}
+                    handleSubmitSDA={handleSubmitSDA}
+                    handleDecals={handleDecals}
+                    imgSrcSDA={imgSrcSDA}
+                    setImgSrcSDA={setImgSrcSDA}
+                    selectedImgSDA={selectedImgSDA} 
+                    setSelectedImgSDA={setSelectedImgSDA}
                 />
             default:
                 return null;
@@ -258,88 +277,88 @@ const Customizer = () => {
         }
     }
 
-        // Novita AI
-        const handleSubmitNovita = async (type) => {
-            if (!promptNovita) return alert("Please enter a prompt");
+    // Novita AI
+    const handleSubmitNovita = async (type) => {
+        if (!promptNovita) return alert("Please enter a prompt");
+        
+        try {
+            setGeneratingImgNovita(true);
+            console.log("[*] handleSubmitNovita before response");
+            const response = await fetch("https://api.novita.ai/v2/txt2img", {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${NOVITA_API_KEY}`,
+                },
+                body: JSON.stringify({
+                    "prompt": "(masterpiece, best quality:1.2), illustration, absurdres, highres, extremely detailed, 1 petite girl, white short hair, rabbit ears, red eyes, eye highlights, dress, short puffy sleeves, frills, outdoors, flower, fluttering petals, upper body, (moon:1.2), night, depth of field, (:d:0.8), chromatic aberration abuse,pastel color, Depth of field,garden of the sun,shiny,Purple tint,(Purple fog:1.3)",
+                    "negative_prompt": "NG_DeepNegative_V1_75T, EasyNegative, extra fingers, fewer fingers, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, (worst quality, low quality:1.4), Negative2, (low quality, worst quality:1.4), (bad anatomy), (inaccurate limb:1.2), bad composition, inaccurate eyes, extra digit,fewer digits, (extra arms:1.2), (bad-artist:0.6), bad-image-v2-39000, <lora:3DMM_V11_67066:1>",
+                    "sampler_name": "Euler a",
+                    "batch_size": 1,
+                    "n_iter": 1,
+                    "steps": 20,
+                    "cfg_scale": 7,
+                    "seed": 3223553976,
+                    "height": 512,
+                    "width": 512,
+                    "model_name": "AnythingV5_v5PrtRE.safetensors",
+                    "restore_faces": false,
+                    "restore_faces_model": "CodeFormer",
+                    "sd_vae": "",
+                    "clip_skip": null,
+                    "enable_hr": false,
+                    "hr_upscaler": "Latent",
+                    "hr_scale": null,
+                    "hr_resize_x": null,
+                    "hr_resize_y": null,
+                    "img_expire_ttl": null,
+                    "sd_refiner": [
+                        {
+                        "checkpoint": "sd_xl_refiner_1.0.safetensors",
+                        "switch_at": null
+                        }
+                    ],
+                    "controlnet_units": [
+                        {
+                        "model": "",
+                        "weight": "",
+                        "input_image": "",
+                        "module": "none",
+                        "control_mode": 0,
+                        "mask": "",
+                        "resize_mode": 1,
+                        "lowvram": false,
+                        "processor_res": null,
+                        "threshold_a": null,
+                        "threshold_b": null,
+                        "guidance_start": null,
+                        "guidance_end": null,
+                        "pixel_perfect": false
+                        }
+                    ]
+                    }), 
+            });
+            console.log("[*] handleSubmitNovita after response");
+            console.log("[*] response : " + response);
+            console.log(response);
+
+            const data = await response.json();
+            console.log(data);
+            console.log(data.data.task_id);
             
-            try {
-                setGeneratingImgNovita(true);
-                console.log("[*] handleSubmitNovita before response");
-                const response = await fetch("https://api.novita.ai/v2/txt2img", {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${NOVITA_API_KEY}`,
-                    },
-                    body: JSON.stringify({
-                        "prompt": "(masterpiece, best quality:1.2), illustration, absurdres, highres, extremely detailed, 1 petite girl, white short hair, rabbit ears, red eyes, eye highlights, dress, short puffy sleeves, frills, outdoors, flower, fluttering petals, upper body, (moon:1.2), night, depth of field, (:d:0.8), chromatic aberration abuse,pastel color, Depth of field,garden of the sun,shiny,Purple tint,(Purple fog:1.3)",
-                        "negative_prompt": "NG_DeepNegative_V1_75T, EasyNegative, extra fingers, fewer fingers, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, (worst quality, low quality:1.4), Negative2, (low quality, worst quality:1.4), (bad anatomy), (inaccurate limb:1.2), bad composition, inaccurate eyes, extra digit,fewer digits, (extra arms:1.2), (bad-artist:0.6), bad-image-v2-39000, <lora:3DMM_V11_67066:1>",
-                        "sampler_name": "Euler a",
-                        "batch_size": 1,
-                        "n_iter": 1,
-                        "steps": 20,
-                        "cfg_scale": 7,
-                        "seed": 3223553976,
-                        "height": 512,
-                        "width": 512,
-                        "model_name": "AnythingV5_v5PrtRE.safetensors",
-                        "restore_faces": false,
-                        "restore_faces_model": "CodeFormer",
-                        "sd_vae": "",
-                        "clip_skip": null,
-                        "enable_hr": false,
-                        "hr_upscaler": "Latent",
-                        "hr_scale": null,
-                        "hr_resize_x": null,
-                        "hr_resize_y": null,
-                        "img_expire_ttl": null,
-                        "sd_refiner": [
-                          {
-                            "checkpoint": "sd_xl_refiner_1.0.safetensors",
-                            "switch_at": null
-                          }
-                        ],
-                        "controlnet_units": [
-                          {
-                            "model": "",
-                            "weight": "",
-                            "input_image": "",
-                            "module": "none",
-                            "control_mode": 0,
-                            "mask": "",
-                            "resize_mode": 1,
-                            "lowvram": false,
-                            "processor_res": null,
-                            "threshold_a": null,
-                            "threshold_b": null,
-                            "guidance_start": null,
-                            "guidance_end": null,
-                            "pixel_perfect": false
-                          }
-                        ]
-                      }), 
-                });
-                console.log("[*] handleSubmitNovita after response");
-                console.log("[*] response : " + response);
-                console.log(response);
-    
-                const data = await response.json();
-                console.log(data);
-                console.log(data.data.task_id);
-                
-                console.log(data.artifacts[0]["base64"]);
-                const imageList = data.artifacts.map((img) => {
-                    return `data:image/png;base64,${img.base64}`;
-                });
-                console.log("imageList : ")
-                console.log(imageList);
-                setImgSrcSA(imageList);
-                console.log("[*] handleSubmitNovita got response");
-            } catch (error) {
-                alert(error)
-            } finally {
-                setGeneratingImgSA(false);
-            }
+            console.log(data.artifacts[0]["base64"]);
+            const imageList = data.artifacts.map((img) => {
+                return `data:image/png;base64,${img.base64}`;
+            });
+            console.log("imageList : ")
+            console.log(imageList);
+            setImgSrcSA(imageList);
+            console.log("[*] handleSubmitNovita got response");
+        } catch (error) {
+            alert(error)
+        } finally {
+            setGeneratingImgSA(false);
         }
+    }
 
     // Novita AI for Civitai models
     const handleSubmitNovitaCivitai = async (type) => {
@@ -432,6 +451,68 @@ const Customizer = () => {
             alert(error)
         } finally {
             setGeneratingImgNovita(false);
+        }
+    }
+
+    // Stable Diffusion API
+    const handleSubmitSDA = async (type) => {
+        if (!promptSDA) return alert("Please enter a prompt");
+        
+        try {
+            setGeneratingImgSDA(true);
+            console.log("[*] handleSubmitSDA before response");
+            const response = await fetch("https://stablediffusionapi.com/api/v3/text2img", {
+                method: 'POST', 
+                headers: {
+                    "Content-Type": "application/json",
+                    // Authorization: `Bearer ${SDA_API_KEY}`,
+                },
+                body: JSON.stringify({
+                    "key": `${SDA_API_KEY}`,
+                    "prompt": "ultra realistic close up portrait ((beautiful pale cyberpunk female with heavy black eyeliner))",
+                    "negative_prompt": null,
+                    "width": "512",
+                    "height": "512",
+                    "samples": "4",
+                    "num_inference_steps": "20",
+                    "seed": null,
+                    "guidance_scale": 7.5,
+                    "safety_checker": "yes",
+                    "multi_lingual": "no",
+                    "panorama": "no",
+                    "self_attention": "no",
+                    "upscale": "no",
+                    "embeddings_model": null,
+                    "webhook": null,
+                    "track_id": null
+                }),
+                redirect: 'follow',
+            });
+            console.log("[*] handleSubmitSDA after response");
+            console.log("[*] response : " + response);
+            console.log(response);
+            console.log("response type : ")
+            console.log(typeof(response));
+
+            const restext = await response.text();
+            console.log("response text : ");
+            console.log(restext);
+            console.log("response type : ");
+            console.log(typeof(restext));
+
+            const data = await JSON.parse(restext);
+            console.log(data);
+            console.log("data.output : ");
+            console.log(data.output);
+            const imageList = data.output;
+            console.log("imageList : ")
+            console.log(imageList);
+            setImgSrcSDA(imageList);
+            console.log("[*] handleSubmitSDA got response");
+        } catch (error) {
+            alert(error)
+        } finally {
+            setGeneratingImgSDA(false);
         }
     }
 
