@@ -15,6 +15,7 @@ const Customizer = () => {
     const STABILITY_API_KEY = import.meta.env.VITE_STABILITY_API_KEY;
     const NOVITA_API_KEY = import.meta.env.VITE_NOVITA_API_KEY;
     const SDA_API_KEY = import.meta.env.VITE_SDA_API_KEY;
+    const SDA_ENTERPRISE_API_KEY = import.meta.env.VITE_SDA_ENTERPRISE_API_KEY;
 
     const snap = useSnapshot(state);
 
@@ -465,7 +466,6 @@ const Customizer = () => {
                 method: 'POST', 
                 headers: {
                     "Content-Type": "application/json",
-                    // Authorization: `Bearer ${SDA_API_KEY}`,
                 },
                 body: JSON.stringify({
                     "key": `${SDA_API_KEY}`,
@@ -486,6 +486,75 @@ const Customizer = () => {
                     "webhook": null,
                     "track_id": null
                 }),
+                redirect: 'follow',
+            });
+            console.log("[*] handleSubmitSDA after response");
+            console.log("[*] response : " + response);
+            console.log(response);
+            console.log("response type : ")
+            console.log(typeof(response));
+
+            const restext = await response.text();
+            console.log("response text : ");
+            console.log(restext);
+            console.log("response type : ");
+            console.log(typeof(restext));
+
+            const data = await JSON.parse(restext);
+            console.log(data);
+            console.log("data.output : ");
+            console.log(data.output);
+            const imageList = data.output;
+            console.log("imageList : ")
+            console.log(imageList);
+            setImgSrcSDA(imageList);
+            console.log("[*] handleSubmitSDA got response");
+        } catch (error) {
+            alert(error)
+        } finally {
+            setGeneratingImgSDA(false);
+        }
+    }
+
+    // Stable Diffusion API Enterprise
+    const handleSubmitSDAEnterprise = async (type) => {
+        if (!promptSDA) return alert("Please enter a prompt");
+        
+        try {
+            setGeneratingImgSDA(true);
+            console.log("[*] handleSubmitSDA before response");
+            const response = await fetch("https://stablediffusionapi.com/api/v1/enterprise/text2img", {
+                method: 'POST', 
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    "key": SDA_ENTERPRISE_API_KEY,
+                    "model_id": "model_id",
+                    "prompt": "ultra realistic close up portrait ((beautiful pale cyberpunk female with heavy black eyeliner)), blue eyes, shaved side haircut, hyper detail, cinematic lighting, magic neon, dark red city, Canon EOS R3, nikon, f/1.4, ISO 200, 1/160s, 8K, RAW, unedited, symmetrical balance, in-frame, 8K",
+                    "negative_prompt": "painting, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs, anime",
+                    "width": "512",
+                    "height": "512",
+                    "samples": "1",
+                    "num_inference_steps": "30",
+                    "safety_checker": "no",
+                    "enhance_prompt": "yes",
+                    "seed": null,
+                    "guidance_scale": 7.5,
+                    "multi_lingual": "no",
+                    "panorama": "no",
+                    "self_attention": "no",
+                    "upscale": "no",
+                    "embeddings_model": null,
+                    "lora_model": null,
+                    "tomesd": "yes",
+                    "use_karras_sigmas": "yes",
+                    "vae": null,
+                    "lora_strength": null,
+                    "scheduler": "UniPCMultistepScheduler",
+                    "webhook": null,
+                    "track_id": null
+                  }),
                 redirect: 'follow',
             });
             console.log("[*] handleSubmitSDA after response");
